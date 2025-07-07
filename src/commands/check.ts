@@ -1,6 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "discord.js";
 import type { Command } from "../utils/types";
 import pb from "../utils/pocketbase";
+import timestamp from "../utils/iso-to-timestamp";
 
 const command: Command = {
     data: new SlashCommandSubcommandBuilder()
@@ -33,7 +34,13 @@ const command: Command = {
         }
 
         await interaction.editReply({
-            content: `${target} has ${record.credit} credit!\nThey last recieved credit for "${record.last_reason}"`,
+            content: `${target} has ${
+                record.credit
+            } credit!\nThey last recieved credit by <@${
+                record.last_author
+            }> ${timestamp(record.updated, "R")} for reason: "${
+                record.last_reason
+            }"`,
         });
     },
 };

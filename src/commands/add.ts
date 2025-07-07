@@ -33,14 +33,15 @@ const command: Command = {
         const reason = interaction.options.getString("reason", true);
 
         // create both users if they don't exist
-        const { user: receiver } = await createUser(interaction.user.id);
-        const { user: author } = await createUser(target.id);
+        const { user: receiver } = await createUser(target.id);
+        const { user: author } = await createUser(interaction.user.id);
 
         // add credit
         await pb.collection("people").update(receiver.id, {
             user_id: receiver.user_id,
             credit: (receiver.credit || 0) + amount,
-            last_reason: reason,
+            last_reason: amount > 0 ? reason : receiver.reason, // only update last_reason if the credit being added is positive
+            last_author: author.user_id, // setting the authod id directly because a author `user` is automatically created
         });
 
         // log history
