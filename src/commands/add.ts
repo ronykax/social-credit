@@ -1,5 +1,7 @@
 import { SlashCommandSubcommandBuilder } from "discord.js";
 import type { Command } from "../utils/types";
+import createUser from "../utils/db/create-user";
+import pb from "../utils/pocketbase";
 
 const command: Command = {
     data: new SlashCommandSubcommandBuilder()
@@ -24,7 +26,27 @@ const command: Command = {
                 .setRequired(true)
         ),
     async run(interaction) {
-        await interaction.reply({ content: "hi world!" });
+        const target = interaction.options.getUser("user", true);
+        const amount = interaction.options.getInteger("amount", true);
+        const reason = interaction.options.getString("reason", true);
+
+        // create both users if they don't exist
+        const { user } = await createUser(interaction.user.id);
+        const { user: author } = await createUser(target.id);
+
+        // add credit
+        await pb.collection("history").create({
+            user,
+            author,
+            amount,
+            reason,
+            guild_id: interaction.guildId,
+        });
+
+        await interaction.reply({
+            content: `${target} was given 12 social credits by ${interaction.user} for "${reason}"`,
+            flags: ["Ephemeral"],
+        });
     },
 };
 
