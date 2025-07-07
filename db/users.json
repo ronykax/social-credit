@@ -1,0 +1,12 @@
+[
+  {
+    "userID": "1234",
+    "credits": [
+      {
+        "message": "too cool",
+        "giverID": "5678",
+        "score": 10
+      }
+    ]
+  }
+]
