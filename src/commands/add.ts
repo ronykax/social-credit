@@ -26,26 +26,41 @@ const command: Command = {
                 .setRequired(true)
         ),
     async run(interaction) {
+        await interaction.deferReply({ flags: ["Ephemeral"] });
+
         const target = interaction.options.getUser("user", true);
         const amount = interaction.options.getInteger("amount", true);
         const reason = interaction.options.getString("reason", true);
 
         // create both users if they don't exist
-        const { user } = await createUser(interaction.user.id);
+        const { user: receiver } = await createUser(interaction.user.id);
         const { user: author } = await createUser(target.id);
 
         // add credit
+        await pb.collection("people").update(receiver.id, {
+            user_id: receiver.user_id,
+            credit: (receiver.credit || 0) + amount,
+            last_reason: reason,
+        });
+
+        // log history
         await pb.collection("history").create({
-            user,
-            author,
+            user: receiver.id,
+            author: author.id,
             amount,
             reason,
             guild_id: interaction.guildId,
         });
 
-        await interaction.reply({
+        await interaction.editReply({
+            content: "done!",
+        });
+
+        if (!interaction.channel) return;
+        if (!interaction.channel.isSendable()) return;
+
+        await interaction.channel.send({
             content: `${target} was given 12 social credits by ${interaction.user} for "${reason}"`,
-            flags: ["Ephemeral"],
         });
     },
 };
