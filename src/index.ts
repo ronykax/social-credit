@@ -5,7 +5,7 @@ import getEnv from "./utils/get-env";
 import registerCommands from "./utils/register-commands";
 import commandGroup from "./utils/command-group";
 
-const client = new Client({ intents: ["GuildMembers"] });
+const client = new Client({ intents: ["GuildMembers", "Guilds"] });
 
 client.once("ready", async () => {
     await registerCommands();
@@ -15,7 +15,7 @@ client.once("ready", async () => {
 client.on("interactionCreate", async (interaction) => {
     if (interaction.isChatInputCommand()) {
         const subCommand = interaction.options.getSubcommand();
-        
+
         const command = commandGroup.get(subCommand);
         if (!command) return;
 
