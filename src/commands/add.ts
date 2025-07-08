@@ -1,7 +1,8 @@
-import { SlashCommandSubcommandBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import type { Command } from "../utils/types";
 import createUser from "../utils/db/create-user";
 import pb from "../utils/pocketbase";
+import getAttachment from "../utils/get-attachment";
 
 const command: Command = {
     data: new SlashCommandSubcommandBuilder()
@@ -36,10 +37,12 @@ const command: Command = {
         const { user: receiver } = await createUser(target.id);
         const { user: author } = await createUser(interaction.user.id);
 
+        const newTotal = ((receiver.credit || 0) + amount) as number;
+
         // add credit
         await pb.collection("people").update(receiver.id, {
             user_id: receiver.user_id,
-            credit: (receiver.credit || 0) + amount,
+            credit: newTotal,
             last_reason: amount > 0 ? reason : receiver.reason, // only update last_reason if the credit being added is positive
             last_author: author.user_id, // setting the authod id directly because a author `user` is automatically created
         });
@@ -54,14 +57,34 @@ const command: Command = {
         });
 
         await interaction.editReply({
-            content: "done!",
+            content: "🫡",
         });
 
         if (!interaction.channel) return;
         if (!interaction.channel.isSendable()) return;
 
+        const attachment = getAttachment("johnchina.png");
+
+        const embed = new EmbedBuilder()
+            .setTitle(`\\👍 **CREDIT UPDATE**`)
+            .setColor("#f80509")
+            .setThumbnail(attachment.url)
+            .setDescription(
+                `**\`${amount > 0 ? "+" : "-"}${Math.abs(amount)}\`** POINTS ${
+                    amount > 0 ? "TO" : "FROM"
+                } <@${
+                    target.id
+                }>!!!\n\n> *${reason}*\n\n-# they now have **\`${newTotal}\`** points`
+            );
+        // .setTimestamp();
+
+        // await interaction.channel.send({
+        //     content: `${target} was given 12 social credits by ${interaction.user} for "${reason}"`,
+        // });
+
         await interaction.channel.send({
-            content: `${target} was given 12 social credits by ${interaction.user} for "${reason}"`,
+            embeds: [embed],
+            files: [attachment.attachment],
         });
     },
 };

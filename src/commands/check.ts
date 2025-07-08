@@ -1,7 +1,8 @@
-import { SlashCommandSubcommandBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import type { Command } from "../utils/types";
 import pb from "../utils/pocketbase";
 import timestamp from "../utils/iso-to-timestamp";
+import getAttachment from "../utils/get-attachment";
 
 const command: Command = {
     data: new SlashCommandSubcommandBuilder()
@@ -33,14 +34,34 @@ const command: Command = {
             return;
         }
 
+        const attachment = getAttachment("omg.png");
+
+        const embed = new EmbedBuilder()
+            .setTitle("\\📝 SOCIAL CREDIT SCORE")
+            .setDescription(
+                `${target} has \`${
+                    record.credit
+                }\` social credit.\n\nThey last recieved credit by <@${
+                    record.last_author
+                }> ${timestamp(record.updated, "R")}.\n> *${record.last_reason}*`
+            )
+            .setTimestamp()
+            .setColor("#f80509")
+            .setThumbnail(attachment.url);
+
+        // await interaction.editReply({
+        //     content: `${target} has ${
+        //         record.credit
+        //     } credit!\nThey last recieved credit by <@${
+        //         record.last_author
+        //     }> ${timestamp(record.updated, "R")} for reason: "${
+        //         record.last_reason
+        //     }"`,
+        // });
+
         await interaction.editReply({
-            content: `${target} has ${
-                record.credit
-            } credit!\nThey last recieved credit by <@${
-                record.last_author
-            }> ${timestamp(record.updated, "R")} for reason: "${
-                record.last_reason
-            }"`,
+            embeds: [embed],
+            files: [attachment.attachment],
         });
     },
 };

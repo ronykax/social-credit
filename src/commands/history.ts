@@ -15,10 +15,15 @@ const command: Command = {
         ),
     async run(interaction) {
         await interaction.deferReply({ flags: ["Ephemeral"] });
+        const target = interaction.options.getUser("user", true);
 
         const list = await pb
             .collection("history")
-            .getList(1, 10, { sort: "-amount", expand: "author" })
+            .getList(1, 10, {
+                sort: "-amount",
+                filter: `user.user_id="${target.id}"`,
+                expand: "author,user",
+            })
             .catch(() => null);
 
         if (!list) {
@@ -35,12 +40,14 @@ const command: Command = {
         for (const record of list.items) {
             if (!record.expand) return;
 
-            content += `1. author: ${record.amount} - <@${
+            content += `1. ${record.amount} - author: <@${
                 record.expand.author.user_id
             }> - ${record.reason} - ${timestamp(record.created, "R")}\n`;
         }
 
-        await interaction.editReply({ content });
+        await interaction.editReply({
+            content: `${target.username}'s credit history:\n${content}`,
+        });
     },
 };
 

@@ -1,18 +1,24 @@
-import { SlashCommandSubcommandBuilder } from "discord.js";
+import {
+    AttachmentBuilder,
+    EmbedBuilder,
+    SlashCommandSubcommandBuilder,
+} from "discord.js";
 import type { Command } from "../utils/types";
 import pb from "../utils/pocketbase";
+import path from "path";
+import getAttachment from "../utils/get-attachment";
 
 const command: Command = {
     data: new SlashCommandSubcommandBuilder()
         .setName("leaderboard")
         .setDescription(
             "show the top users with the highest social credit score"
-        )
-        .addBooleanOption((option) =>
-            option.setName("global").setDescription("show global leaderboard?")
         ),
+    // .addBooleanOption((option) =>
+    //     option.setName("global").setDescription("show global leaderboard?")
+    // ),
     async run(interaction) {
-        await interaction.deferReply({ flags: ["Ephemeral"] });
+        await interaction.deferReply();
 
         const data = await pb
             .collection("people")
@@ -27,16 +33,26 @@ const command: Command = {
             return;
         }
 
-        let content = "";
-        // let index = 0;
+        const description = data.items
+            .map(
+                (record) =>
+                    `1. <@${record.user_id}> - **\`${record.credit}\`** POINTS`
+            )
+            .join("\n");
 
-        for (const record of data.items) {
-            // content += `1. ${index <= 2 ? ` ${rankEmoji(index)} ` : ""}<@${record.user_id}> - ${record.credit} points\n`;
-            content += `1. <@${record.user_id}> - ${record.credit} points\n`;
-            // index += 1;
-        }
+        const attachment = getAttachment("omg.png");
 
-        await interaction.editReply({ content });
+        const embed = new EmbedBuilder()
+            .setTitle("\\🏆 TOP SOCIAL CREDIT HOLDERS")
+            .setColor("#f80509")
+            .setDescription(description)
+            .setThumbnail(attachment.url)
+            .setTimestamp();
+
+        await interaction.editReply({
+            embeds: [embed],
+            files: [attachment.attachment],
+        });
     },
 };
 
