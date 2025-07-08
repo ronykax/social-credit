@@ -1,7 +1,8 @@
-import { SlashCommandSubcommandBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandSubcommandBuilder } from "discord.js";
 import type { Command } from "../utils/types";
 import pb from "../utils/pocketbase";
 import timestamp from "../utils/iso-to-timestamp";
+import getAttachment from "../utils/get-attachment";
 
 const command: Command = {
     data: new SlashCommandSubcommandBuilder()
@@ -14,7 +15,7 @@ const command: Command = {
                 .setRequired(true)
         ),
     async run(interaction) {
-        await interaction.deferReply({ flags: ["Ephemeral"] });
+        await interaction.deferReply();
         const target = interaction.options.getUser("user", true);
 
         const list = await pb
@@ -35,18 +36,29 @@ const command: Command = {
             return;
         }
 
-        let content = "";
+        const attachment = getAttachment("johnchina.png");
 
-        for (const record of list.items) {
-            if (!record.expand) return;
+        const embed = new EmbedBuilder()
+            .setTitle(`\\📜 ${target.username.toUpperCase()}'s CREDIT HISTORY`)
+            .setColor("#f80509")
+            .setTimestamp()
+            .setThumbnail(attachment.url);
 
-            content += `1. ${record.amount} - author: <@${
+        let description = "";
+
+        for (const [i, record] of list.items.entries()) {
+            if (!record.expand) continue;
+
+            description += `${i + 1}. **\`${record.amount}\`** by <@${
                 record.expand.author.user_id
-            }> - ${record.reason} - ${timestamp(record.created, "R")}\n`;
+            }> - ${record.reason} (${timestamp(record.created, "R")})\n`;
         }
 
+        embed.setDescription(description || "sybau 💔🥀");
+
         await interaction.editReply({
-            content: `${target.username}'s credit history:\n${content}`,
+            embeds: [embed],
+            files: [attachment.attachment],
         });
     },
 };

@@ -18,7 +18,7 @@ const command: Command = {
             option.setName("history").setDescription("show full history?")
         ),
     async run(interaction) {
-        await interaction.deferReply({ flags: ["Ephemeral"] });
+        await interaction.deferReply();
 
         const target = interaction.options.getUser("user", true);
 
