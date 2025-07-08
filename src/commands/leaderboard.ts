@@ -33,12 +33,17 @@ const command: Command = {
             return;
         }
 
-        const description = data.items
-            .map(
-                (record) =>
-                    `1. <@${record.user_id}> - **\`${record.credit}\`** POINTS`
-            )
-            .join("\n");
+        const description =
+            data.items.length > 0
+                ? data.items
+                      .map(
+                          (record, i) =>
+                              `${i + 1}. <@${record.user_id}> - **\`${
+                                  record.credit
+                              }\`** POINTS`
+                      )
+                      .join("\n")
+                : "sybau 💔🥀";
 
         const attachment = getAttachment("omg.png");
 
