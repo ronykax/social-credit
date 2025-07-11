@@ -13,9 +13,6 @@ const command: Command = {
                 .setName("user")
                 .setDescription("the user you want to check")
                 .setRequired(true)
-        )
-        .addBooleanOption((option) =>
-            option.setName("social_credit_history").setDescription("show full history?")
         ),
     async run(interaction) {
         await interaction.deferReply();

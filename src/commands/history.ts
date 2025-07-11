@@ -6,7 +6,7 @@ import getAttachment from "../utils/get-attachment";
 
 const command: Command = {
     data: new SlashCommandSubcommandBuilder()
-        .setName("social_credit_history")
+        .setName("history")
         .setDescription("check a user's credit history")
         .addUserOption((option) =>
             option
