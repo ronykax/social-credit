@@ -19,11 +19,15 @@ export default async function registerCommands() {
         getEnv("DISCORD_CLIENT_TOKEN")
     );
 
-    await rest.put(
-        Routes.applicationGuildCommands(
-            getEnv("DISCORD_CLIENT_ID"),
-            getEnv("DISCORD_GUILD_ID")
-        ),
-        { body: [command] }
-    );
+    await rest.put(Routes.applicationCommands(getEnv("DISCORD_CLIENT_ID")), {
+        body: [command],
+    });
+
+    // await rest.put(
+    //     Routes.applicationGuildCommands(
+    //         getEnv("DISCORD_CLIENT_ID"),
+    //         getEnv("DISCORD_GUILD_ID")
+    //     ),
+    //     { body: [command] }
+    // );
 }
