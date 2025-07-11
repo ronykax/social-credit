@@ -40,7 +40,7 @@ const command: Command = {
         const newTotal = ((receiver.credit || 0) + amount) as number;
 
         // add credit
-        await pb.collection("people").update(receiver.id, {
+        await pb.collection("social_credit_people").update(receiver.id, {
             user_id: receiver.user_id,
             credit: newTotal,
             last_reason: amount > 0 ? reason : receiver.reason, // only update last_reason if the credit being added is positive
@@ -48,7 +48,7 @@ const command: Command = {
         });
 
         // log history
-        await pb.collection("history").create({
+        await pb.collection("social_credit_history").create({
             user: receiver.id,
             author: author.id,
             amount,

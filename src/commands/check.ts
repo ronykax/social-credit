@@ -15,7 +15,7 @@ const command: Command = {
                 .setRequired(true)
         )
         .addBooleanOption((option) =>
-            option.setName("history").setDescription("show full history?")
+            option.setName("social_credit_history").setDescription("show full history?")
         ),
     async run(interaction) {
         await interaction.deferReply();
@@ -23,7 +23,7 @@ const command: Command = {
         const target = interaction.options.getUser("user", true);
 
         const record = await pb
-            .collection("people")
+            .collection("social_credit_people")
             .getFirstListItem(`user_id="${target.id}"`)
             .catch(() => null);
 

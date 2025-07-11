@@ -21,7 +21,7 @@ const command: Command = {
         await interaction.deferReply();
 
         const data = await pb
-            .collection("people")
+            .collection("social_credit_people")
             .getList(1, 10, { sort: "-credit" })
             .catch(() => null);
 

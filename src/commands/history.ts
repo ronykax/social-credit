@@ -6,7 +6,7 @@ import getAttachment from "../utils/get-attachment";
 
 const command: Command = {
     data: new SlashCommandSubcommandBuilder()
-        .setName("history")
+        .setName("social_credit_history")
         .setDescription("check a user's credit history")
         .addUserOption((option) =>
             option
@@ -19,7 +19,7 @@ const command: Command = {
         const target = interaction.options.getUser("user", true);
 
         const list = await pb
-            .collection("history")
+            .collection("social_credit_history")
             .getList(1, 10, {
                 sort: "-amount",
                 filter: `user.user_id="${target.id}"`,
